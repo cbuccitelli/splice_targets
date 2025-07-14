@@ -4,6 +4,8 @@
 # Ignore everything in the input folder
 /input/*
 
+# Ignore publications and literature folder
+/litt/*
 
 # Ignore .env file
 .env

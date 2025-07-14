@@ -1,0 +1,34 @@
+---
+title: "Kahle exploration"
+output: html_notebook
+---
+
+## What does this do?
+
+This script is for exploring the kahle et al data concerning splicing in cancer. We want  to find out a few things:
+
+1) Unique splice junctions found in tumours versus normal
+ 1.1. Look for EGFRvIII --> glioblastoma
+ 1.2 Claudin 18.2 (although I recall this was tricky last time...) --> pancreatic / gastric
+ 1.3 CD44v6 (although the pipeline looks dead) --> Breast?
+ 
+2) Looks for their peptide evidence and where we can find the elution profiles of these sorts of data
+
+## Libraries and packages
+
+
+```{r}
+
+library(tidyr)
+library(data.table)
+library(dplyr)
+library(ggplot2)
+
+```
+
+
+## Loading data
+
+
+
+
