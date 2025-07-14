@@ -30,5 +30,33 @@ library(ggplot2)
 ## Loading data
 
 
+Ok let's try the first file
+
+```{r}
+fnam <- "../input/tss_complexity_counts.whitelisted.G0.01.globsum20.filtLib.conf3_neojunctions_corrected.tsv.gz"
 
 
+tmp <- fread(fnam, header = F)
+
+tmp %>% head
+
+```
+
+Looks like we have sample information, gene, and chromosome positions. Presumably these correspond to junction points of exons. In the paper they say they call "≈251,000" such neojunctions. They seem to arrive at this point by essentially filtering TCGA non-GENCODE junctions againts GTEx and normal junctions. If the table we just loaded covers these solely (i.e. it has already been filtered) we should see this by uniquifying the concatenation of V2 and V3
+
+```{r}
+gene_coord_combos <- paste0(tmp$V2, "_", tmp$V3)
+
+gene_coord_combos %>% unique %>% length
+
+
+```
+
+Indeed that is what we see. Ok let's familiarize ourselves with how they got to this number. If they filtered AGAINST gencode or even GTEx it could be that they've filtered out things that do have physiological presence like claudin 18.2
+
+Ok we have something here: "For a ranking of neojunctions, we sorted all EEJs with an increased specificity towards tumor samples requiring a minimum number of spliced alignments across the EEJ per sample to count it as expressed (tumor: 10 spliced reads, normals: 3 spliced reads, GTEx: 2 spliced reads). Further, we removed all junctions that were present in more than 1% of GTEx or TCGA normal samples or had a higher mean expression in TCGA normals compared to TCGA tumor samples (within the same cancer type). We then ranked all EEJs by predominant occurrence in tumor samples based on Fisher's exact test. To aggregate over multiple events in a gene, we show only the event with the strongest effect."
+
+
+Ok so here we essentially see that they have a rough definition of what tumor-specific is. They say "we need at least 10 spliced reads in say its in a tumor sample, 3 if its a matched normal, 2 if it is a GTEx. Furthermore, we exclude it if its in 1% of GTEx samples.
+
+Now... this means that the claudin 18.2 event (that is, inclusion of an alternate exon 1) might be filtered out if it is counted at that... more or less 
