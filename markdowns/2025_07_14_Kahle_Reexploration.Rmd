@@ -59,4 +59,63 @@ Ok we have something here: "For a ranking of neojunctions, we sorted all EEJs wi
 
 Ok so here we essentially see that they have a rough definition of what tumor-specific is. They say "we need at least 10 spliced reads in say its in a tumor sample, 3 if its a matched normal, 2 if it is a GTEx. Furthermore, we exclude it if its in 1% of GTEx samples.
 
-Now... this means that the claudin 18.2 event (that is, inclusion of an alternate exon 1) might be filtered out if it is counted at that... more or less 
+Now... this means that the claudin 18.2 event (that is, inclusion of an alternate exon 1) might be filtered out if it is counted at that... more or less arbitrary cutoff.
+
+We can try to download all splice junction events called by Kahle et al and try to fish them out
+
+
+## Exploring the Kahle et al splice event calls
+
+Kahle et al. give, on their webpage (see https://gdc.cancer.gov/about-data/publications/PanCanAtlas-Splicing-2018), different files. Some are large, the ones I have downloaded are mostly labelled with "confirmed" which I take to mean that they think they are confirmed by mass spectrometry (or at least they think they are). I cannot imagine that they were though: CPTAC at the time did not have coverage of all the tumor types and neojunctions covered by the paper. I think it is rather, in the manuscript, the arbitrary threshold of 20 reads that is being used to call something "confirmed".
+
+Let's load the files and explore them. Note that the supplementary files table was generated running the aforementioned website text through chat gpt to generate a table I could operate on.
+
+```{r}
+
+call_dir <- "../input/individual_calls/"
+
+downloaded_files <- list.files(call_dir)
+
+manifest <-  "../input/20250820_KahleSupplementaryFiles.xlsx"
+
+
+manifest_tab <- openxlsx::read.xlsx(manifest)
+
+manifest_tab
+
+```
+
+We'll add a label to see what we have actually downloaded
+
+```{r}
+
+manifest_tab$Downloaded <- FALSE
+
+manifest_tab$Downloaded[manifest_tab$File.Name %in% downloaded_files] <- TRUE
+
+
+```
+
+
+Now let's select for just the "confirmed"
+
+
+```{r}
+
+coords <- grep(pattern = "merge_graphs", fixed = T, manifest_tab$File.Name)
+
+
+mini_manifest_tab <- manifest_tab[coords,]
+
+
+## and then we restrict to "confirmed" which might still be bullshit
+
+mini_manifest_tab <- mini_manifest_tab %>% 
+  filter(grepl(pattern = "confirmed", x = File.Name))
+```
+
+
+Ok great, we have the files. Let's select some and explore them. They come in two flavours: txt.gz or gff3. Let's first ask perplexity.ai what the difference is and how we can load them into R.
+
+Perplexity points out that the gff3 files are specifically for genomic features and their annotation. The files are consistently smaller than the txt.gz, so they may function as accompanying information
+
